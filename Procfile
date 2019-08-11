@@ -1,1 +1,1 @@
-web python telebot_weather.py
+web python tele_bot.py
