@@ -3,12 +3,13 @@ import requests
 import datetime
 
 bot = telebot.TeleBot("974589976:AAHAwPf5g28i1euYB0jX9AJIccWynonQLn4")
+a = 0
 
-url = 'https://wttr.in'
 
 weather_parameters = {
     'format': 4,  
-    'M': '',  
+    'M': '',
+    'm': ''  
 }
 
 temp_parameter = {
@@ -29,9 +30,9 @@ def greet():
 		return 'Good night, '
 		
 
-def temp_string():
+def temp_string(city2):
 	try:
-		response1 = requests.get(url, params = temp_parameter)
+		response1 = requests.get(f'https://wttr.in/{city2}', params = temp_parameter)
 	except requests.ConnectionError:
 		return '<Oops...Connection error>'
 	if response1.status_code == 200:
@@ -39,12 +40,14 @@ def temp_string():
 	else:
 		return '<Something gone wrong on the weather server...>'
 
-def recommendations():
-	temp_storage = list(temp_string())
+def recommendations(city1):
+	temp_storage = list(temp_string(city1))
+	
 	if temp_storage[0] == '-':
 		temp_int = int(f'{temp_storage[0]}{temp_storage[1]}{temp_storage[2]}')
 	else:
 		temp_int = int(f'{temp_storage[1]}{temp_storage[2]}')
+
 		if temp_int <= 15:
 			return 'Pretty cold out there...Better wrap up well!'
 		elif 16 <= temp_int <= 23:
@@ -53,9 +56,9 @@ def recommendations():
 			return 'Pretty warm...Beach time!'
 			
 
-def what_weather():
+def what_weather(city):
     try:
-        response = requests.get(url, params = weather_parameters)
+        response = requests.get(f'https://wttr.in/{city}', params = weather_parameters)
     except requests.ConnectionError:
         return '<Oops...Connection error>'
     if response.status_code == 200:
@@ -68,7 +71,7 @@ def what_weather():
 def send_weather(message):
 	name = message.from_user.first_name
 	bot.send_message(message.chat.id, f'{greet()}{name}!')
-	bot.send_message(message.chat.id, what_weather())
-	bot.send_message(message.chat.id, recommendations())
+	bot.send_message(message.chat.id, what_weather(message.text))
+	bot.send_message(message.chat.id, recommendations(message.text))
 
 bot.polling(none_stop = True)
